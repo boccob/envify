@@ -183,3 +183,21 @@ test('-t [ envify purge --argument ]', function(t) {
       , 'var y = process.env.argument'
     ].join('\n'))
 })
+
+test('Environment variable should not overwrite value passed to custom envify', function(t) {
+  var hello = process.env.HELLO;
+  process.env.HELLO = 'World'
+  var stream = envify({ HELLO: 'Envify' })
+  var buffer = ''
+
+  stream()
+    .on('data', function(d) { buffer += d })
+    .on('end', function() {
+      t.notEqual(-1, buffer.indexOf('World'))
+      t.end()
+    })
+    .end([
+      'process.env.HELLO'
+    ].join('\n'))
+  process.env.HELLO = hello
+})
